@@ -51,6 +51,16 @@ function! ale#fixers#prettier#ApplyFixForVersion(buffer, version_output) abort
         let l:options = (!empty(l:options) ? l:options . ' ' : '') . '--parser ' . l:parser
     endif
 
+    " Use --pkg-conf with prettier_d
+    if l:executable =~# 'prettier_d$' && ale#semver#GTE(l:version, [1, 4, 0])
+        return {
+        \   'command': ale#path#BufferCdString(a:buffer)
+        \       . ale#Escape(l:executable)
+        \       . (!empty(l:options) ? ' ' . l:options : '')
+        \       . ' --pkg-conf --stdin',
+        \}
+    endif
+
     " 1.4.0 is the first version with --stdin-filepath
     if ale#semver#GTE(l:version, [1, 4, 0])
         return {
